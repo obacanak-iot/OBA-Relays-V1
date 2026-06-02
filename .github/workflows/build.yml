@@ -15,6 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create ESPHome secrets file
+        run: |
+          cat > devices/secrets.yaml <<EOF
+          wifi_ssid: "DUMMY_WIFI"
+          wifi_password: "DUMMY_PASSWORD"
+          EOF
+
       - name: Build firmware
         uses: esphome/build-action@v6
         with:
