@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build ESPHome firmware
@@ -27,11 +30,22 @@ jobs:
         with:
           yaml-file: devices/oba-relays-v1.yaml
 
-      - name: Upload firmware artifact
-        uses: actions/upload-artifact@v4
+      - name: Prepare release files
+        run: |
+          VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          mkdir -p release
+          find . -name "*.ota.bin" -exec cp {} release/oba-relays-v1-esp8266.ota.bin \;
+          find . -name "manifest.json" -exec cp {} release/manifest.json \;
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: oba-relays-v1-firmware
-          path: |
-            *.bin
-            **/*.bin
-            **/manifest.json
+          tag_name: v${{ env.VERSION }}
+          name: OBA Relays V1 Firmware ${{ env.VERSION }}
+          body: OBA Relays V1 firmware release ${{ env.VERSION }}
+          files: |
+            release/manifest.json
+            release/oba-relays-v1-esp8266.ota.bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
