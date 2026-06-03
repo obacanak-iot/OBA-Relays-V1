@@ -34,9 +34,31 @@ jobs:
         run: |
           VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
           mkdir -p release
-          find . -name "*.ota.bin" -exec cp {} release/oba-relays-v1-esp8266.ota.bin \;
-          find . -name "manifest.json" -exec cp {} release/manifest.json \;
+
+          OTA_FILE=$(find . -name "*.ota.bin" | head -n 1)
+          cp "$OTA_FILE" release/oba-relays-v1-esp8266.ota.bin
+
+          MD5=$(md5sum release/oba-relays-v1-esp8266.ota.bin | awk '{ print $1 }')
+
+          cat > release/manifest.json <<EOF
+          {
+            "name": "OBA Relays V1",
+            "version": "$VERSION",
+            "builds": [
+              {
+                "chipFamily": "ESP8266",
+                "ota": {
+                  "path": "oba-relays-v1-esp8266.ota.bin",
+                  "md5": "$MD5"
+                }
+              }
+            ]
+          }
+          EOF
+
+          cat release/manifest.json
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
