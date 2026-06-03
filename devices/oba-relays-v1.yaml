@@ -18,12 +18,17 @@ logger:
 
 api:
 
-ota:
-  - platform: esphome
-
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+
+http_request:
+  verify_ssl: false
+
+ota:
+  - platform: esphome
+
+  - platform: http_request
 
 uart:
   tx_pin: GPIO1
@@ -50,6 +55,11 @@ switch:
       - uart.write: [0xA0, 0x02, 0x01, 0xA3]
     turn_off_action:
       - uart.write: [0xA0, 0x02, 0x00, 0xA2]
+
+update:
+  - platform: http_request
+    name: "${friendly_name} Firmware Update"
+    source: "https://github.com/obacanak-iot/OBA-Relays-V1/releases/latest/download/manifest.json"
 
 text_sensor:
   - platform: template
