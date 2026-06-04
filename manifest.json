@@ -6,7 +6,7 @@
       "chipFamily": "ESP8266",
       "ota": {
         "path": "firmware/oba-relays-v1-esp8266.ota.bin",
-        "md5": "6a861086422fe1c380b659f34460a335"
+        "md5": "74f2a010571dcc444f412ae4e247e078"
       }
     }
   ]
