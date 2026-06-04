@@ -1,12 +1,12 @@
 {
   "name": "OBA Relays V1",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "builds": [
     {
       "chipFamily": "ESP8266",
       "ota": {
         "path": "firmware/oba-relays-v1-esp8266.ota.bin",
-        "md5": "ba8ee3cb97f3e0bb524d3b111fa4e9d5"
+        "md5": "ad994d504f9b2d0c09de624dd2326c32"
       }
     }
   ]
