@@ -30,19 +30,22 @@ jobs:
         with:
           yaml-file: devices/oba-relays-v1.yaml
 
-      - name: Prepare release files
+      - name: Prepare OTA files for GitHub Pages and Release
         run: |
           VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+          mkdir -p firmware
           mkdir -p release
 
           OTA_FILE=$(find . -name "*.ota.bin" | head -n 1)
+
+          cp "$OTA_FILE" firmware/oba-relays-v1-esp8266.ota.bin
           cp "$OTA_FILE" release/oba-relays-v1-esp8266.ota.bin
 
-          MD5=$(md5sum release/oba-relays-v1-esp8266.ota.bin | awk '{ print $1 }')
+          MD5=$(md5sum firmware/oba-relays-v1-esp8266.ota.bin | awk '{ print $1 }')
 
-          cat > release/manifest.json <<EOF
+          cat > manifest.json <<EOF
           {
             "name": "OBA Relays V1",
             "version": "$VERSION",
@@ -50,7 +53,7 @@ jobs:
               {
                 "chipFamily": "ESP8266",
                 "ota": {
-                  "path": "oba-relays-v1-esp8266.ota.bin",
+                  "path": "firmware/oba-relays-v1-esp8266.ota.bin",
                   "md5": "$MD5"
                 }
               }
@@ -58,7 +61,17 @@ jobs:
           }
           EOF
 
-          cat release/manifest.json
+          cp manifest.json release/manifest.json
+
+          cat manifest.json
+
+      - name: Commit OTA files to repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update OTA firmware files
+          file_pattern: |
+            manifest.json
+            firmware/oba-relays-v1-esp8266.ota.bin
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
