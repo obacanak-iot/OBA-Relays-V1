@@ -1,7 +1,7 @@
 substitutions:
   device_name: oba-relays-v1
   friendly_name: OBA Relays V1
-  firmware_version: "1.0.3"
+  firmware_version: "1.0.4"
 
 esphome:
   name: ${device_name}
