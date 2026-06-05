@@ -1,7 +1,7 @@
 substitutions:
   device_name: oba-relays-v1
   friendly_name: OBA Relays V1
-  firmware_version: "1.0.7"
+  firmware_version: "1.0.8"
 
 esphome:
   name: ${device_name}
@@ -24,6 +24,8 @@ wifi:
 
 http_request:
   verify_ssl: false
+  timeout: 30s
+  tls_buffer_size_rx: 16384
 
 ota:
   - platform: esphome
