@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - manifest.json
+      - firmware/**
   workflow_dispatch:
 
 permissions:
@@ -32,13 +35,19 @@ jobs:
 
       - name: Prepare OTA files for GitHub Pages and Release
         run: |
+          set -euo pipefail
+
           VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
           mkdir -p firmware
           mkdir -p release
 
-          OTA_FILE=$(find . -name "*.ota.bin" | head -n 1)
+          OTA_FILE=$(find .esphome -type f -name "*.ota.bin" | sort | head -n 1)
+          if [ -z "$OTA_FILE" ]; then
+            echo "No OTA firmware file found under .esphome"
+            exit 1
+          fi
 
           cp "$OTA_FILE" firmware/oba-relays-v1-esp8266.ota.bin
           cp "$OTA_FILE" release/oba-relays-v1-esp8266.ota.bin
