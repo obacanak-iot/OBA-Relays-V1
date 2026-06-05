@@ -59,7 +59,7 @@ switch:
 update:
   - platform: http_request
     name: "${friendly_name} Firmware Update"
-    source: "https://github.com/obacanak-iot/OBA-Relays-V1/releases/latest/download/manifest.json"
+    source: "https://obacanak-iot.github.io/OBA-Relays-V1/manifest.json"
 
 text_sensor:
   - platform: template
