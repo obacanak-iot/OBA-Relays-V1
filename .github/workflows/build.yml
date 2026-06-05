@@ -43,9 +43,11 @@ jobs:
           mkdir -p firmware
           mkdir -p release
 
-          OTA_FILE=$(find .esphome -type f -name "*.ota.bin" | sort | head -n 1)
-          if [ -z "$OTA_FILE" ]; then
-            echo "No OTA firmware file found under .esphome"
+          OTA_FILE="oba-relays-v1-esp8266/oba-relays-v1-esp8266.ota.bin"
+          if [ ! -f "$OTA_FILE" ]; then
+            echo "Expected OTA firmware file not found: $OTA_FILE"
+            echo "Available OTA files:"
+            find . -type f -name "*.ota.bin" -not -path "./firmware/*" -print
             exit 1
           fi
 
