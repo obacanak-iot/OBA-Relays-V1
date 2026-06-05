@@ -77,12 +77,18 @@ jobs:
           cat manifest.json
 
       - name: Commit OTA files to repository
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Update OTA firmware files
-          file_pattern: |
-            manifest.json
-            firmware/oba-relays-v1-esp8266.ota.bin
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json firmware/oba-relays-v1-esp8266.ota.bin
+          git status --short
+          if git diff --cached --quiet; then
+            echo "No OTA changes to commit"
+            exit 0
+          fi
+          git commit -m "Update OTA firmware files"
+          git push
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
