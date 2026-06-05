@@ -5,8 +5,8 @@
     {
       "chipFamily": "ESP8266",
       "ota": {
-        "path": "https://github.com/obacanak-iot/OBA-Relays-V1/releases/download/v1.0.7/oba-relays-v1-esp8266.ota.bin",
-        "md5": "9685a5d01f2ecb997a544eb00e78e25f"
+        "path": "firmware/oba-relays-v1-esp8266.ota.bin",
+        "md5": "d1d592c76116a16d0eee0dd6a49d344b"
       }
     }
   ]
