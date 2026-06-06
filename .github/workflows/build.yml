@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -21,83 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create ESPHome secrets file
+      - name: Create ESPHome secrets file for compile check only
         run: |
           cat > devices/secrets.yaml <<EOF
           wifi_ssid: "DUMMY_WIFI"
           wifi_password: "DUMMY_PASSWORD"
           EOF
 
-      - name: Build firmware
+      - name: Build firmware compile check
         uses: esphome/build-action@v6
         with:
           yaml-file: devices/oba-relays-v1.yaml
 
-      - name: Prepare OTA files for GitHub Pages and Release
+      - name: Do not publish CI firmware
         run: |
-          set -euo pipefail
-
-          VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-          mkdir -p firmware
-          mkdir -p release
-
-          OTA_FILE="oba-relays-v1-esp8266/oba-relays-v1-esp8266.ota.bin"
-          if [ ! -f "$OTA_FILE" ]; then
-            echo "Expected OTA firmware file not found: $OTA_FILE"
-            echo "Available OTA files:"
-            find . -type f -name "*.ota.bin" -not -path "./firmware/*" -print
-            exit 1
-          fi
-
-          cp "$OTA_FILE" firmware/oba-relays-v1-esp8266.ota.bin
-          cp "$OTA_FILE" release/oba-relays-v1-esp8266.ota.bin
-
-          MD5=$(md5sum firmware/oba-relays-v1-esp8266.ota.bin | awk '{ print $1 }')
-
-          cat > manifest.json <<EOF
-          {
-            "name": "OBA Relays V1",
-            "version": "$VERSION",
-            "builds": [
-              {
-                "chipFamily": "ESP8266",
-                "ota": {
-                  "path": "firmware/oba-relays-v1-esp8266.ota.bin",
-                  "md5": "$MD5"
-                }
-              }
-            ]
-          }
-          EOF
-
-          cp manifest.json release/manifest.json
-
-          cat manifest.json
-
-      - name: Commit OTA files to repository
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add manifest.json firmware/oba-relays-v1-esp8266.ota.bin
-          git status --short
-          if git diff --cached --quiet; then
-            echo "No OTA changes to commit"
-            exit 0
-          fi
-          git commit -m "Update OTA firmware files"
-          git push
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ env.VERSION }}
-          name: OBA Relays V1 Firmware ${{ env.VERSION }}
-          body: OBA Relays V1 firmware release ${{ env.VERSION }}
-          files: |
-            release/manifest.json
-            release/oba-relays-v1-esp8266.ota.bin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "CI firmware is compiled only to validate YAML."
+          echo "It contains dummy WiFi credentials and must not be published as OTA firmware."
