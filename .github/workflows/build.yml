@@ -21,6 +21,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate version consistency
+        run: |
+          set -euo pipefail
+
+          VERSION_FILE=$(tr -d '[:space:]' < VERSION)
+          YAML_VERSION=$(grep 'firmware_version:' devices/oba-relays-v1.yaml | sed 's/.*"\(.*\)".*/\1/')
+          MANIFEST_VERSION=$(grep '"version"' manifest.json | head -n 1 | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+
+          echo "VERSION=$VERSION_FILE"
+          echo "YAML firmware_version=$YAML_VERSION"
+          echo "Manifest version=$MANIFEST_VERSION"
+
+          test "$VERSION_FILE" = "$YAML_VERSION"
+          test "$VERSION_FILE" = "$MANIFEST_VERSION"
+
       - name: Create ESPHome secrets file for compile check only
         run: |
           cat > devices/secrets.yaml <<EOF

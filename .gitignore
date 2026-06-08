@@ -1,0 +1,7 @@
+.pio/
+.vscode/
+*.log
+devices/secrets.yaml
+.esphome/
+**/.esphome/
+artifacts/
