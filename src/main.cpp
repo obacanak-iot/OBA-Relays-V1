@@ -37,6 +37,7 @@ static constexpr uint16_t EEPROM_SIZE = 256;
 static constexpr uint8_t EEPROM_MAGIC = 0x52;
 static constexpr uint8_t EEPROM_VERSION = 1;
 
+// Röle modülünün UART protokolü: ESP-01 bu byte dizilerini TX/RX üzerinden röle kartına gönderir.
 static const uint8_t ROLE1_ON[] = {0xA0, 0x01, 0x01, 0xA2};
 static const uint8_t ROLE1_OFF[] = {0xA0, 0x01, 0x00, 0xA1};
 static const uint8_t ROLE2_ON[] = {0xA0, 0x02, 0x01, 0xA3};
@@ -53,6 +54,7 @@ WiFiManagerParameter mqttPassParam("mqtt_pass", "MQTT sifre", "", 64, "type='pas
 WiFiManagerParameter deviceNameParam("device_name", "Cihaz adi", "", 32);
 
 struct Settings {
+  // WiFiManager portalından girilen MQTT bilgileri EEPROM'a kaydedilir.
   char mqttHost[40] = "";
   uint16_t mqttPort = 1883;
   char mqttUser[32] = "";
@@ -90,6 +92,7 @@ String deviceId() {
   uint8_t mac[6];
   WiFi.macAddress(mac);
 
+  // Her cihazın MQTT topic ve Home Assistant entity kimliği MAC adresinden üretilir.
   char id[13];
   snprintf(
     id,
@@ -180,6 +183,7 @@ void publishAvailability() {
 }
 
 void sendRelayCommand(uint8_t relay, bool enabled) {
+  // Fiziksel röle durumunu değiştiren asıl komut burada gönderilir.
   if (relay == 1) {
     Serial.write(enabled ? ROLE1_ON : ROLE1_OFF, sizeof(ROLE1_ON));
     relay1State = enabled;
@@ -198,6 +202,7 @@ void publishRelayState(uint8_t relay) {
 }
 
 void setRelay(uint8_t relay, bool enabled) {
+  // Home Assistant'tan gelen komut hem röleye yazılır hem MQTT state olarak geri yayınlanır.
   sendRelayCommand(relay, enabled);
   publishRelayState(relay);
   publishAvailability();
@@ -210,6 +215,7 @@ void publishJson(const String &topic, const JsonDocument &doc, bool retained) {
 }
 
 void addDevice(JsonObject device) {
+  // Home Assistant Discovery mesajlarında cihaz kartının ortak bilgileri.
   device["identifiers"][0] = deviceId();
   device["name"] = deviceName();
   device["manufacturer"] = "OBA Canak";
@@ -218,6 +224,7 @@ void addDevice(JsonObject device) {
 }
 
 void publishSwitchDiscovery(uint8_t relay) {
+  // Role1 ve Role2'nin Home Assistant'ta switch olarak otomatik görünmesini sağlar.
   JsonDocument doc;
   doc["name"] = String("Role") + relay;
   doc["unique_id"] = deviceId() + "_role" + relay;
@@ -235,6 +242,7 @@ void publishSwitchDiscovery(uint8_t relay) {
 }
 
 void publishSensorDiscovery(const char *key, const char *name, const char *valueTemplate, const char *deviceClass = nullptr, const char *unit = nullptr) {
+  // Firmware, WiFi sinyali, uptime gibi tanılama sensörlerini tanıtır.
   JsonDocument doc;
   doc["name"] = name;
   doc["unique_id"] = deviceId() + "_" + key;
@@ -255,6 +263,7 @@ void publishSensorDiscovery(const char *key, const char *name, const char *value
 }
 
 void publishButtonDiscovery(const char *key, const char *name, const char *payload) {
+  // Restart ve Factory Reset butonlarını Home Assistant'a tanıtır.
   JsonDocument doc;
   doc["name"] = name;
   doc["unique_id"] = deviceId() + "_" + key;
@@ -268,6 +277,7 @@ void publishButtonDiscovery(const char *key, const char *name, const char *paylo
 }
 
 void publishUpdateDiscovery() {
+  // Home Assistant update entity'si son sürümü manifest dosyasından görür.
   JsonDocument doc;
   doc["name"] = "Firmware";
   doc["unique_id"] = deviceId() + "_firmware_update";
@@ -306,6 +316,7 @@ void publishDiagnostics() {
     return;
   }
 
+  // Home Assistant sensörlerinin okuyacağı güncel cihaz durumu.
   JsonDocument doc;
   doc["firmware_version"] = FIRMWARE_VERSION;
   doc["installed_version"] = FIRMWARE_VERSION;
@@ -327,6 +338,7 @@ void publishDiagnostics() {
 }
 
 void handleManifest(const String &payload) {
+  // Public version manifestinden son sürüm bilgisini okur; burada OTA indirme yapılmaz.
   JsonDocument doc;
   DeserializationError error = deserializeJson(doc, payload);
   if (error) {
@@ -351,6 +363,7 @@ void checkForUpdates(bool force) {
   lastUpdateCheckAt = now;
 
   std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
+  // GitHub Pages sertifika doğrulamasını basit tutuyoruz; sadece version manifest okunuyor.
   client->setInsecure();
 
   HTTPClient http;
@@ -366,6 +379,7 @@ void checkForUpdates(bool force) {
 }
 
 void factoryReset() {
+  // WiFiManager kayıtlarını ve MQTT ayarlarını temizleyip cihazı yeniden başlatır.
   WiFiManager wm;
   wm.resetSettings();
 
@@ -378,6 +392,7 @@ void factoryReset() {
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length) {
+  // MQTT'den gelen role/set, restart ve factory_reset komutları burada yakalanır.
   String message;
   message.reserve(length);
   for (unsigned int i = 0; i < length; i++) {
@@ -413,6 +428,7 @@ void connectMqtt() {
   mqtt.setServer(settings.mqttHost, settings.mqttPort);
   mqtt.setCallback(mqttCallback);
 
+  // Last Will mesajı sayesinde cihaz düşerse Home Assistant "offline" görebilir.
   const String clientId = deviceName();
   bool connected = false;
   if (strlen(settings.mqttUser) > 0) {
@@ -434,6 +450,7 @@ void connectMqtt() {
 }
 
 void setupWifi() {
+  // İlk kurulumda WiFiManager portalı WiFi ve MQTT bilgilerini toplar.
   wifiManager.setConfigPortalTimeout(CONFIG_PORTAL_TIMEOUT_SECONDS);
   wifiManager.addParameter(&mqttHostParam);
   wifiManager.addParameter(&mqttPortParam);
@@ -446,6 +463,7 @@ void setupWifi() {
     ESP.restart();
   }
 
+  // Portal kapanınca girilen MQTT bilgileri EEPROM'a kaydedilir.
   copyParam(settings.mqttHost, sizeof(settings.mqttHost), mqttHostParam.getValue());
   settings.mqttPort = static_cast<uint16_t>(atoi(mqttPortParam.getValue()));
   if (settings.mqttPort == 0) {
@@ -458,11 +476,13 @@ void setupWifi() {
 }
 
 void setupOta() {
+  // Arduino OTA aynı ağ içinden kablosuz firmware yüklemeye izin verir.
   ArduinoOTA.setHostname(deviceName().c_str());
   ArduinoOTA.begin();
 }
 
 void setup() {
+  // ESP-01 röle kartıyla UART üzerinden 115200 baud hızında konuşur.
   Serial.begin(115200);
   Serial.setTimeout(50);
 
@@ -483,6 +503,7 @@ void setup() {
 }
 
 void loop() {
+  // Ana döngü OTA, MQTT bağlantısı, discovery ve tanılama yayınlarını canlı tutar.
   ArduinoOTA.handle();
   connectMqtt();
   mqtt.loop();

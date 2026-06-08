@@ -1,31 +1,31 @@
 # PlatformIO Manuel Derleme
 
-Bu klasor artik PlatformIO projesi olarak acilabilir.
+Bu klasör artık PlatformIO projesi olarak açılabilir.
 
-## VS Code ile Acma
+## VS Code ile Açma
 
-1. VS Code'u acin.
-2. `File > Open Workspace from File...` secin.
-3. Su dosyayi acin:
+1. VS Code'u açın.
+2. `Dosya > Çalışma Alanını Dosyadan Aç...` seçin.
+3. Şu dosyayı açın:
 
 ```text
-E:\Home Assistant\GITHUB\OBA-Relays-V1\OBA-Relays-V1.code-workspace
+E:\Home Assistant\GITHUB\OBA-Relays-V1-GitHub\OBA-Relays-V1.code-workspace
 ```
 
-Alternatif olarak direkt klasoru acabilirsiniz:
+Alternatif olarak direkt klasörü açabilirsiniz:
 
 ```text
-E:\Home Assistant\GITHUB\OBA-Relays-V1
+E:\Home Assistant\GITHUB\OBA-Relays-V1-GitHub
 ```
 
 ## PlatformIO Eklentisi
 
-VS Code icinde PlatformIO eklentisi kurulu degilse:
+VS Code içinde PlatformIO eklentisi kurulu değilse:
 
-1. Extensions bolumunu acin.
-2. `PlatformIO IDE` arayin.
+1. `Uzantılar` bölümünü açın.
+2. `PlatformIO IDE` arayın.
 3. Kurun.
-4. VS Code'u yeniden baslatin.
+4. VS Code'u yeniden başlatın.
 
 ## Derleme
 
@@ -43,7 +43,7 @@ pio run -e esp01_1m
 
 ## Upload
 
-ESP-01 programlama adaptorune bagliyken:
+ESP-01 programlama adaptörüne bağlıyken:
 
 ```text
 PROJECT TASKS > esp01_1m > General > Upload
@@ -55,7 +55,7 @@ veya:
 pio run -e esp01_1m -t upload
 ```
 
-## Seri Monitor
+## Seri Monitör
 
 ```text
 PROJECT TASKS > esp01_1m > Platform > Monitor
@@ -67,21 +67,22 @@ veya:
 pio device monitor -b 115200
 ```
 
-## Ilk Acilis
+## İlk Açılış
 
-Cihaz WiFi bulamazsa kurulum agi acar:
+Cihaz WiFi bulamazsa kurulum ağı açar:
 
 ```text
 OBA-RELAYS-ESP01-V1-XXXXXXXXXXXX
 ```
 
-Portalda WiFi ve MQTT bilgilerini girin. Home Assistant MQTT Discovery aktifse Role1 ve Role2 switch entity olarak gorunur.
+Portalda WiFi ve MQTT bilgilerini girin. Home Assistant MQTT Discovery aktifse Role1 ve Role2 switch entity olarak görünür.
 
 ## Not
 
-Build baslamadan once `scripts/check_versions.py` otomatik calisir. Su uc surum ayni degilse derleme durur:
+Build başlamadan önce `scripts/check_versions.py` otomatik çalışır. Şu sürümler aynı değilse derleme durur:
 
 - `VERSION`
-- `platformio.ini` icindeki `FIRMWARE_VERSION`
+- `platformio.ini` içindeki `FIRMWARE_VERSION`
 - `firmware/version.json`
+- `oba-relays-v1/version.json`
 
