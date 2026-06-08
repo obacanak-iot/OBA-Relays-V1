@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "release_url": "https://github.com/obacanak-iot/oba-esp01-smart-button-mini",
-  "release_summary": "Initial firmware. Manual update: sync GitHub, build in VS Code / PlatformIO, then upload."
+  "release_summary": "Adds Home Assistant diagnostic entities: firmware version, WiFi signal, uptime, MAC, IP, SSID, restart, factory reset, and firmware update."
 }
