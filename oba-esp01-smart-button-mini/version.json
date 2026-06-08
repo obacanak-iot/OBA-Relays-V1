@@ -1,0 +1,5 @@
+{
+  "version": "1.0.0",
+  "release_url": "https://github.com/obacanak-iot/oba-esp01-smart-button-mini",
+  "release_summary": "Initial firmware. Manual update: sync GitHub, build in VS Code / PlatformIO, then upload."
+}
