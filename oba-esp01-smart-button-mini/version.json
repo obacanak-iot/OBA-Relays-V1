@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "release_url": "https://github.com/obacanak-iot/oba-esp01-smart-button-mini",
-  "release_summary": "Adds Home Assistant diagnostic entities: firmware version, WiFi signal, uptime, MAC, IP, SSID, restart, factory reset, and firmware update."
+  "release_summary": "Limits factory reset to a physical service action: GPIO0 and GPIO2 held together for 10 seconds within the first 60 seconds after boot. Removes the Home Assistant factory reset command."
 }
