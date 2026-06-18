@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "platformio-ide.autoRebuildAutocompleteIndex": true,
+    "platformio-ide.useBuiltinPIOCore": true,
+    "files.exclude": {
+      ".pio": true,
+      ".esphome": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "platformio.platformio-ide"
+    ]
+  }
+}
